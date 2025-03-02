@@ -22,19 +22,17 @@ def rbf_NuSVR(X_train, X_test, y_train, y_test, loop):
     param = clf1.best_params_
     print(param)
     svr1 = NuSVR(C=param.get("C"), gamma=param.get("gamma"), kernel=param.get("kernel"),)
-
     svr1.fit(X_train,y_train)
     
-    """
     print("*****************RBF:")
     print(dir(svr1))
     
     print("clsss_weight:")
     print(svr1.class_weight_)
     print("\n")
-    #print("coef:")
-    #print(svr1.coef_)
-    #print("\n")
+    print("coef:")
+    print(svr1.coef_)
+    print("\n")
     print("dual_coef:")
     print(svr1.dual_coef_)
     print("\n")
@@ -47,19 +45,17 @@ def rbf_NuSVR(X_train, X_test, y_train, y_test, loop):
     print("shape_fit:")
     print(svr1.shape_fit_)
     print("\n")
-    """
-
+    
     y_pred=svr1.predict(X_test)
     y_train_pred=svr1.predict(X_train)
 
-    #print(y_train)
-    #print(y_train_pred)
+    print(y_train)
+    print(y_train_pred)
     #y_test
     #y_pred
     dftrainname="%d_rbf_train.csv"%(loop)
     dftestname="%d_rbf_test.csv"%(loop)
 
-    
     result_train_df=pd.DataFrame()
     result_train_df["y_train"]=y_train
     result_train_df["y_train_pred"]=list(y_train_pred.reshape(1,-1)[0])
@@ -68,13 +64,9 @@ def rbf_NuSVR(X_train, X_test, y_train, y_test, loop):
     result_test_df["y_test"]=y_test
     result_test_df["y_pred"]=list(y_pred.reshape(1,-1)[0])
 
-
     result_train_df.to_csv("./%s"%(dftrainname),index=False)
     result_test_df.to_csv("./%s"%(dftestname),index=False)
-    #print(result_train_df)
-
-
-
+    print(result_train_df)
 
     train_score = np.sqrt(mean_squared_error(y_train, y_train_pred))
     test_score = np.sqrt(mean_squared_error(y_test, y_pred))
@@ -84,8 +76,6 @@ def rbf_NuSVR(X_train, X_test, y_train, y_test, loop):
     test_mae=mean_absolute_error(y_test, y_pred)
     
     return train_r2 ,test_r2, train_score, test_score, train_mae, test_mae
-
-
 
 def linear_nuSVR(X_train, X_test, y_train, y_test):
     nusvr = NuSVR()
@@ -109,7 +99,6 @@ def linear_nuSVR(X_train, X_test, y_train, y_test):
 
     return train_r2, test_r2, train_score, test_score, train_mae, test_mae 
 
-
 def rf(X_train, X_test, y_train, y_test, fetures, loop):
     rf=RandomForestRegressor()
 
@@ -121,26 +110,23 @@ def rf(X_train, X_test, y_train, y_test, fetures, loop):
     param = clf1.best_params_
     svr1 =RandomForestRegressor(n_estimators=param.get("n_estimators"), max_depth=param.get("max_depth"),
                                 min_samples_split=param.get("min_samples_split"))
-
-
     svr1.fit(X_train,y_train)
    
     features=np.array([fetures]).reshape(-1,1)
     rf_feature_importance=svr1.feature_importances_
-    #print(rf_feature_importance)
+    print(rf_feature_importance)
     rf_feature_importance=np.array([rf_feature_importance]).reshape(-1,1)
     features_and_importance=np.concatenate((features, rf_feature_importance), axis=1)
     
-    #print(features_and_importance)
+    print(features_and_importance)
 
     feature_and_importance_sort=features_and_importance[np.lexsort(features_and_importance.T)]
     feature_and_importance_sort=feature_and_importance_sort[::-1]
-    #print(feature_and_importance_sort)
+    print(feature_and_importance_sort)
     featuresimportance=pd.DataFrame(feature_and_importance_sort, columns=["feature", "importance"])
     featurefilename="%d_rf_feature_importance.csv"%(loop)
     featuresimportance.to_csv("./%s"%(featurefilename), index=False)
 
-    """
     print(dir(svr1))
     print("***************estimators:")
     print(svr1.estimators_)
@@ -154,12 +140,9 @@ def rf(X_train, X_test, y_train, y_test, fetures, loop):
     print("***************n_outputs:")
     print(svr1.n_outputs_)
     print("\n")
-    """
-
 
     y_pred=svr1.predict(X_test)
     y_train_pred=svr1.predict(X_train)
-
 
     dftrainname="%d_rf_train.csv"%(loop)
     dftestname="%d_rf_test.csv"%(loop)
@@ -198,7 +181,6 @@ def loops(num=20):
 
         df_corr=data.corr()
         df_corr.to_csv(r"df_corr.csv")
-
 #        data.drop(["LMBL","LMBLDELTA"],axis=1,inplace=True)
         y=data["Energy"]
         X=data.drop("Energy",axis=1)
@@ -209,7 +191,6 @@ def loops(num=20):
         
         features = list(X.columns)
         #print(features)
-
         loopindex.append(int(loop))
         #rbf_record=[loop]
         
@@ -221,13 +202,11 @@ def loops(num=20):
         #"""
         rf_record=[]
         rflisttmp=list(rf(X_train, X_test, y_train, y_test, features, loop))
- 
-        #print(rf_feature_importance)
+        print(rf_feature_importance)
 
         rf_record.extend(rflisttmp)
         rf_array.append(rf_record)
         #"""
-
     #print("loop_rbf ,rbf_train_r2, rbf_test_r2, rbf_train_rmse, rbf_test_rmse, rbf_train_mae, rbf_test_mae, loop_rf, rf_train_r2, rf_test_r2, rf_train_rmse, rf_test_rmse, rf_train_mae, rf_test_mae")
     
     rbf_array_result=np.array(rbf_array)
@@ -250,10 +229,8 @@ def loops(num=20):
     print(rbf_data_all_sort)
     rbf_data_mean_std=np.concatenate((np.array([title_rbf]),rbf_data_all_sort, np.array([rbf_array_mean]), np.array([rbf_array_std])), axis=0)
     print(rbf_data_mean_std)
-
-
-    #print(rbf_test_mae_mean)
-
+    print(rbf_test_mae_mean)
+    
     rf_array_result=np.array(rf_array)
     rf_array_mean=["mean_rf"]
     rf_array_mean.extend(list(np.mean(rf_array_result, axis=0)))
@@ -274,32 +251,26 @@ def loops(num=20):
     rf_data_mean_std=np.concatenate((np.array([title_rf]) ,rf_data_all_sort, np.array([rf_array_mean]), np.array([rf_array_std])), axis=0)
     print(rf_data_mean_std)
 
-
     rbf_rf=np.concatenate((rbf_data_mean_std, rf_data_mean_std), axis=0)
     print(rbf_rf)
     
-    #scoreing=pd.DataFrame(rbf_rf)
+    scoreing=pd.DataFrame(rbf_rf)
     columns=["loop" ,"train_r2", "test_r2", "train_rmse", "test_rmse", "train_mae", "test_mae", "mae_error", "mae_error_index"]
     scoreing=pd.DataFrame(rbf_rf, columns=columns)
     scoreing.to_csv(r"./scores.csv", index=False)
 
     #alldata=np.concatenate((rbf_data, rf_data), axis=1)
     #alldata=rbf_data
-
     np.set_printoptions(precision=5)
     #print(alldata)
-
-
     #linear_array=np.array(linear_array)
     #print(linear_array)
-
 
 if __name__ == '__main__':
     
     #loopnum=2
     loops(20)
     
-
 # result_lst=[train_socre,test_socre,train_r2,test_r2,train_mae,test_mae]
 # result_all_df=pd.DataFrame([result_lst],columns=["train_socre","test_socre","train_r2","test_r2","train_mae","test_mae"])
 # result_all_df.to_csv(r"rbf_result_all_df.csv",index=False)
